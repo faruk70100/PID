@@ -21,17 +21,26 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(EnaA),EncoderRead,RISING);//EnaA pininden digital değerde yükselme algılandığında interrupt modu devreye girer ve EncoderRead fonk çalışır
 }
 void loop() {
-  if(Serial.available()>0){
-    val = Serial.read(); //com1 den değerleri okuyor
-    /*valu = String(val);
-    kp = valu.substring(0,1).toInt();
-    ki = valu.substring(1,2).toInt();
-    kd = valu.substring(2,3).toInt();*/
-    // gelen 3 basamaklı değerden sıra ile kd ki ve kp değerlerini alıyor
-    kd = val%10;
-    val=(val-kd)/10;
-    ki= val%10;
-    kp= (val-ki)/10;
+  int temp;
+  String val;
+  String valu;
+  String valType;
+  if(Serial.available()>0){//COM1'den veri geliyor mu kontrolü
+    valu = Serial.read(); //COM1 gelen değeri okur
+    valu.trim();//gelen verilerdeki boşlukları siler
+    valu.toLowerCase();// bütün büyük harfleri küçük harf yapar
+    temp = valu.indexOf(':');//gelen veri için de : olan değerin konumu bulur
+    valType = valu.substring(0,temp);// ilk değerden :'in olduğu konuma kadar string olarak böler
+    val = valu.substring(temp+1); // : dan başlar ve sona kadar olan kısmı bir strin olarak böler
+    if(valType.equals('kp')){ // ilk bölünen parça kp diye kontrol eder
+      kp = val.toInt(); // ikinci kısmı kp integer değeri olarak atar
+    }
+    if(valType.equals("ki")){// ilk bölünen parça ki diye kontrol eder
+      ki = val.toInt(); // ikinci kısmı ki integer değeri olarak atar
+    }
+    if(valType.equals("kd")){// ilk bölünen parça kd diye kontrol eder
+      kd = val.toInt(); // ikinci kısmı kd integer değeri olarak atar
+    }
   }
   long currT = micros();//döngünün micro saniyesin olara alıyor
   float deltaT=((float)(currT-ep))/1.0e6; //zaman farkını saniye ceviriyor
